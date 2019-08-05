@@ -1,11 +1,12 @@
 version: 2.1
 orbs:
   aws-s3: circleci/aws-s3@1.0.0
+  aws-cli: circleci/aws-cli@0.1.13
 jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/node:7.10
+      - image: 'circleci/python:2.7'
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -14,37 +15,66 @@ jobs:
 
     working_directory: ~/repo
 
+    description: >-
+      Syncs directories and S3 prefixes.
+      https://docs.aws.amazon.com/cli/latest/reference/s3/sync.html
+    parameters:
+      from:
+        type: string
+        description: A local *../build* path to sync with S3
+        default: '../build'
+      to:
+        type: string
+        description: 'A URI to an S3 bucket, i.e. ''s3://searchimage'''
+        default: 's3://searchimage'
+      arguments:
+        type: string
+        default: ''
+        description: >
+          Optional additional arguments to pass to the `aws sync` command (e.g.,
+          `--acl public-read`). Note: if passing a multi-line value to this
+          parameter, include `\` characters after each line, so the Bash shell can
+          correctly interpret the entire command.
+      overwrite:
+        default: false
+        type: boolean
+      aws-access-key-id:
+        type: env_var_name
+        description: aws access key id override
+        default: AWS_ACCESS_KEY_ID
+      aws-secret-access-key:
+        type: env_var_name
+        description: aws secret access key override
+        default: AWS_SECRET_ACCESS_KEY
+      aws-region:
+        type: env_var_name
+        description: aws region override
+        default: AWS_REGION
+
     steps:
       - checkout
+      - aws-cli/install
+      - aws-cli/configure:
+          aws-access-key-id: << parameters.aws-access-key-id >>
+          aws-secret-access-key: << parameters.aws-secret-access-key >>
+          aws-region: << parameters.aws-region >>
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+      - run: npm install
 
-      - run:
-          name: Install Package
-          command: npm install
+      - run: npm run build
 
-
-      - run:
-          name: Build the Project
-          command: npm run build
+      # - aws-s3/sync:
+      #   from: ../build
+      #   to: "s3://searchimage/prefix"
+      #   aws-access-key-id: AKIAIPO47POA2CIWS5FA
+      #   aws-secret-access-key: MP4k9NMw75uNzebzjIgXU4nq6JPp5eCqZ
+      #   aws-region: us-east-1
+      #   overwrite: true
 
       - aws-s3/copy:
           from: ../build
           to: "s3://searchimage"
-          aws-access-key-id: AKIAIPO47POA2CIWS5FA
-          aws-secret-access-key: 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
-          aws-region: us-east-1
           arguments: --dryrun
-
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
 
       # run tests!
       # - run: npm test
