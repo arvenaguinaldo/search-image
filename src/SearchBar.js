@@ -2,35 +2,19 @@ import React, { Component } from 'react';
 import Autosuggest from 'react-autosuggest';
 import apiConfig from './api/';
 
-
 import './SearchBar.css';
 
-// Teach Autosuggest how to calculate suggestions for any given input value.
-// const getSuggestions = value => {
-//   const inputValue = value.trim().toLowerCase();
-//   const inputLength = inputValue.length;
-
-//   return inputLength === 0 ? [] : languages.filter(lang =>
-//     lang.name.toLowerCase().slice(0, inputLength) === inputValue
-//   );
-// };
-
-// When suggestion is clicked, Autosuggest needs to populate the input
-// based on the clicked suggestion. Teach Autosuggest how to calculate the
-// input value for every given suggestion.
-const getSuggestionValue = suggestion => suggestion.name + ' ' + suggestion.surname;
-
-// Use your imagination to render suggestions.
 const renderSuggestion = suggestion => (
   <div>
-    <img className={'suggestion-content'} src={suggestion.photo} alt={suggestion.name}/> <span className='name'>{suggestion.name + ' ' + suggestion.surname}</span>
+    <img className={'suggestion-content'} src={suggestion.profile_image.medium} alt={suggestion.name}/> <span className='name'>{suggestion.name}</span>
   </div>
 );
 
 export class SearchBar extends Component {
     state = {
       value: '',
-      suggestions: []
+      suggestions: [],
+      suggestionValue: ''
     };
 
   onChange = (event, { newValue }) => {
@@ -39,22 +23,28 @@ export class SearchBar extends Component {
     });
   };
 
-  // Autosuggest will call this function every time you need to update suggestions.
-  // You already implemented this logic above, so just use it.
+
+  getSuggestionValue = (suggestion) => {
+    this.setState({
+      suggestionValue: suggestion
+    });
+
+    return suggestion.name;
+  }
+
   onSuggestionsFetchRequested = async({ value, reason }) => {
 
-    const response = await apiConfig.get('/?ext', {
-      params: {name: value, amount: 6},
+    const response = await apiConfig.get('/search/users', {
+      params: {query: value},
     });
 
     this.setState({
-      suggestions: response.data
+      suggestions: response.data.results
     });
 
     console.log(response.data);
   };
 
-  // Autosuggest will call this function every time you need to clear suggestions.
   onSuggestionsClearRequested = () => {
     this.setState({
       suggestions: []
@@ -62,9 +52,8 @@ export class SearchBar extends Component {
   };
 
   render() {
-    const { value, suggestions } = this.state;
+    const { value, suggestions, suggestionValue } = this.state;
 
-    // Autosuggest will pass through all these props to the input.
     const inputProps = {
       placeholder: 'Search name',
       value,
@@ -76,10 +65,17 @@ export class SearchBar extends Component {
           suggestions={suggestions}
           onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
           onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-          getSuggestionValue={getSuggestionValue}
+          getSuggestionValue={this.getSuggestionValue}
           renderSuggestion={renderSuggestion}
           inputProps={inputProps}
         />
+        {
+          suggestionValue &&
+          <div>
+            <img className={'suggestionImage'} src={suggestionValue.profile_image.large} alt={suggestionValue.name}/>
+            <h1 className={'suggestionName'}>{suggestionValue.name}</h1>
+          </div>
+        }
       </div>
     )
   }
