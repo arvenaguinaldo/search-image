@@ -1,18 +1,34 @@
-version: 2.1
-orbs:
-  aws-s3: circleci/aws-s3@1.0.0
-  aws-cli: circleci/aws-cli@0.1.13
+version: 2
 jobs:
   build:
     docker:
-      # specify the version you desire here
-      - image: 'circleci/python:2.7'
       - image: circleci/node:7.10
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: npm install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      # run tests!
+      # - run: npm test
+
+  deploy:
+    docker:
+      - image: 'circleci/python:2.7'
 
     working_directory: ~/repo
 
@@ -67,10 +83,6 @@ jobs:
           aws-secret-access-key: << parameters.aws-secret-access-key >>
           aws-region: << parameters.aws-region >>
 
-      - run: npm install
-
-      - run: npm run build
-
       # - aws-s3/sync:
       #   from: ../build
       #   to: "s3://searchimage/prefix"
@@ -88,6 +100,3 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-
-      # run tests!
-      # - run: npm test
