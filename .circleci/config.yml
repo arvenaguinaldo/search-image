@@ -58,7 +58,7 @@ jobs:
         default: 's3://searchimage'
       arguments:
         type: string
-        default: '--recursive'
+        default: ''
         description: >
           Optional additional arguments to pass to the `aws sync` command (e.g.,
           `--acl public-read`). Note: if passing a multi-line value to this
@@ -108,17 +108,11 @@ jobs:
             aws s3 sync \
               <<parameters.from>> <<parameters.to>><<#parameters.overwrite>> --delete<</parameters.overwrite>><<#parameters.arguments>> \
               <<parameters.arguments>><</parameters.arguments>>
-      - run:
-          name: S3 Copy << parameters.from >> -> << parameters.to >>
-          command: "aws s3 cp << parameters.from >> << parameters.to >><<# parameters.arguments >> << parameters.arguments >><</ parameters.arguments >>"
-        # - aws-s3/sync:
-        #   from: ./build
-        #   overwrite: true
 
-      # - aws-s3/copy:
-      #     from: ./build
-      #     to: "s3://searchimage"
-      #     arguments: --recursive
+      - aws-s3/copy:
+          from: ./build
+          to: "s3://searchimage"
+          arguments: --recursive
 
       - save_cache:
           paths:
