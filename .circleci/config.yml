@@ -90,18 +90,23 @@ jobs:
           aws-secret-access-key: << parameters.aws-secret-access-key >>
           aws-region: << parameters.aws-region >>
 
-      # - aws-s3/sync:
-      #   from: ../build
-      #   to: "s3://searchimage/prefix"
-      #   aws-access-key-id: AKIAIPO47POA2CIWS5FA
-      #   aws-secret-access-key: MP4k9NMw75uNzebzjIgXU4nq6JPp5eCqZ
-      #   aws-region: us-east-1
-      #   overwrite: true
+      - deploy:
+          name: Deploy to S3
+          command: |
+            aws s3 sync \
+              <<parameters.from>> <<parameters.to>><<#parameters.overwrite>> --delete<</parameters.overwrite>><<#parameters.arguments>> \
+              <<parameters.arguments>><</parameters.arguments>>
+      - run:
+          name: S3 Copy << parameters.from >> -> << parameters.to >>
+          command: "aws s3 cp << parameters.from >> << parameters.to >><<# parameters.arguments >> << parameters.arguments >><</ parameters.arguments >>"
+        # - aws-s3/sync:
+        #   from: ./build
+        #   overwrite: true
 
-      - aws-s3/copy:
-          from: ./build
-          to: "s3://searchimage"
-          arguments: --recursive
+      # - aws-s3/copy:
+      #     from: ./build
+      #     to: "s3://searchimage"
+      #     arguments: --recursive
 
       - save_cache:
           paths:
