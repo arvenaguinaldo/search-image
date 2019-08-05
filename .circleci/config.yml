@@ -42,7 +42,7 @@ jobs:
       from:
         type: string
         description: A local *../build* path to sync with S3
-        default: '../build'
+        default: './build'
       to:
         type: string
         description: 'A URI to an S3 bucket, i.e. ''s3://searchimage'''
@@ -95,9 +95,9 @@ jobs:
       #   overwrite: true
 
       - aws-s3/copy:
-          from: ../build
+          from: ./build
           to: "s3://searchimage"
-          arguments: --dryrun
+          arguments: --recursive
 
       - save_cache:
           paths:
