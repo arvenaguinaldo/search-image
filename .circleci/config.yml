@@ -25,6 +25,11 @@ jobs:
 
       - run: npm run build
 
+      - persist_to_workspace:
+          root: build
+          paths:
+            - static
+
       - save_cache:
           paths:
             - node_modules
@@ -77,6 +82,9 @@ jobs:
 
     steps:
       - checkout
+      - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: ~/repo/build
 
       - restore_cache:
           keys:
