@@ -58,7 +58,7 @@ jobs:
         default: 's3://searchimage'
       arguments:
         type: string
-        default: ''
+        default: '--recursive'
         description: >
           Optional additional arguments to pass to the `aws sync` command (e.g.,
           `--acl public-read`). Note: if passing a multi-line value to this
