@@ -83,3 +83,14 @@
 .react-autosuggest__suggestion--focused .highlight {
   color: #120000;
 }
+
+.suggestionImage {
+  height: 500px;
+  width: 500px;
+  margin: 5% 35% 0px 35%;
+}
+
+.suggestionName {
+  text-align: center;
+  font-size: 2.5rem;
+}
