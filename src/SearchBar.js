@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import Autosuggest from 'react-autosuggest';
 import apiConfig from './api/';
 
-import style from './SearchBar.css';
+
+import './SearchBar.css';
 
 // Teach Autosuggest how to calculate suggestions for any given input value.
 // const getSuggestions = value => {
