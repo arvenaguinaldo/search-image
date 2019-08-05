@@ -30,17 +30,16 @@ jobs:
 
 
       - run:
-          name: Build the Project
-          command: npm run build
+        name: Build the Project
+        command: npm run build
 
-
-        - aws-s3/copy:
-            from: ../build
-            to: "s3://searchimage"
-            aws-access-key-id: AKIAIPO47POA2CIWS5FA
-            aws-secret-access-key: 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
-            aws-region: us-east-1
-            arguments: --dryrun
+      - aws-s3/copy:
+          from: ../build
+          to: "s3://searchimage"
+          aws-access-key-id: AKIAIPO47POA2CIWS5FA
+          aws-secret-access-key: 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
+          aws-region: us-east-1
+          arguments: --dryrun
 
       - save_cache:
           paths:
