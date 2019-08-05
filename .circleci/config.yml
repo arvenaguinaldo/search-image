@@ -25,13 +25,13 @@ jobs:
             - v1-dependencies-
 
       - run:
-        name: Install Package
-        command: npm install
+          name: Install Package
+          command: npm install
 
 
       - run:
-        name: Build the Project
-        command: npm run build
+          name: Build the Project
+          command: npm run build
 
       - aws-s3/copy:
           from: ../build
